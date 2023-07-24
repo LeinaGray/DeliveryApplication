@@ -126,26 +126,25 @@ class PackageHashTable:
         address1_index = 0
         closest_package_id = 0
         while len(truck2) > 0:
-            closest = 100.0
-            address1_index = self.address_list.index(address1)
-
-            # This piece of code specifically looks for the closest package
+            min_distance = float('inf')
+            closest_package_id = None
             for i in truck2:
-                address2_index = self.address_list.index(self.packages_array[(i-1)].address)
-                if self.distances_matrix[address1_index][address2_index] < closest:
-                    closest = self.distances_matrix[address1_index][address2_index]
+                address2_index = self.address_list.index(self.packages_array[i - 1].address)
+                distance = self.distances_matrix[address1_index][address2_index]
+                if distance < min_distance:
+                    min_distance = distance
                     closest_package_id = i
 
             # Now that the closest package has been found,
             # deliver package
-            self.miles += closest
-            minutes = (closest / self.TRUCK_SPEED) * 60
+            self.miles += min_distance
+            minutes = (min_distance / self.TRUCK_SPEED) * 60
             delta = timedelta(minutes=minutes)
             self.delivery_time += delta
-            self.packages_array[closest_package_id-1].status = "Delivered"
+            self.packages_array[closest_package_id - 1].status = "Delivered"
             self.packages_array[closest_package_id - 1].time_delivered = self.delivery_time
             truck2.remove(closest_package_id)
-            address1 = self.packages_array[(closest_package_id-1)].address
+            address1 = self.packages_array[closest_package_id - 1].address
 
         # Add the last trip back to hub
         address2_index = self.address_list.index("4001 South 700 East")
